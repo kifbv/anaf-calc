@@ -40,11 +40,30 @@ h2 {
     color: #2c3e50;
 }
 
+.input-container h3 {
+    margin: 20px 0 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+}
+
 .input-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+}
+
+.user-choices {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.tax-parameters {
+    background-color: #eaf2f8;
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .input-group {

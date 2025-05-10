@@ -7,14 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function calculateInvestment() {
-    // Get input values
+    // Get input values - User investment choices
     const initialPrice = parseFloat(document.getElementById('initialPrice').value);
     const marketPrice = parseFloat(document.getElementById('marketPrice').value);
+    const annualPriceChange = parseFloat(document.getElementById('annualPriceChange').value) / 100;
     const futureDiscount = parseFloat(document.getElementById('futureDiscount').value) / 100;
     const annualInvestment = parseFloat(document.getElementById('annualInvestment').value);
     const dividend = parseFloat(document.getElementById('dividend').value);
     const duration = parseInt(document.getElementById('duration').value);
+    
+    // Get input values - Tax parameters
     const capitalGainsTax = parseFloat(document.getElementById('capitalGainsTax').value) / 100;
+    const healthInsuranceRate = parseFloat(document.getElementById('healthInsuranceRate').value) / 100;
     const minWage = parseFloat(document.getElementById('minWage').value);
     const eurToLei = parseFloat(document.getElementById('eurToLei').value);
     
@@ -22,11 +26,13 @@ function calculateInvestment() {
     const results = calculateInvestmentGrowth(
         initialPrice,
         marketPrice,
+        annualPriceChange,
         futureDiscount,
         annualInvestment,
         dividend,
         duration,
         capitalGainsTax,
+        healthInsuranceRate,
         minWage,
         eurToLei
     );
@@ -44,11 +50,13 @@ function calculateInvestment() {
 function calculateInvestmentGrowth(
     initialPrice,
     marketPrice,
+    annualPriceChange,
     futureDiscount,
     annualInvestment,
     dividend,
     duration,
     capitalGainsTax,
+    healthInsuranceRate,
     minWage,
     eurToLei
 ) {
@@ -57,7 +65,8 @@ function calculateInvestmentGrowth(
     // Initial investment
     let currentShares = annualInvestment / initialPrice;
     let totalInvestment = annualInvestment;
-    let marketValue = currentShares * marketPrice;
+    let currentMarketPrice = marketPrice; // Current market price that will change over time
+    let marketValue = currentShares * currentMarketPrice;
     let totalDividends = 0;
     
     // Year 0 (initial investment)
@@ -67,6 +76,7 @@ function calculateInvestmentGrowth(
         sharesThisYear: currentShares,
         totalShares: currentShares,
         totalInvestment: totalInvestment,
+        marketPrice: currentMarketPrice,
         marketValue: marketValue,
         unrealizedGain: marketValue - totalInvestment,
         dividendsThisYear: 0,
@@ -79,8 +89,11 @@ function calculateInvestmentGrowth(
     
     // Calculate for each year
     for (let year = 1; year <= duration; year++) {
+        // Update market price based on annual growth/decline
+        currentMarketPrice = currentMarketPrice * (1 + annualPriceChange);
+        
         // Calculate discounted price for this year's investment
-        const discountedPrice = marketPrice * (1 - futureDiscount);
+        const discountedPrice = currentMarketPrice * (1 - futureDiscount);
         
         // Dividend income from existing shares (paid before new purchases)
         const dividendsThisYear = currentShares * dividend;
@@ -100,7 +113,7 @@ function calculateInvestmentGrowth(
         totalInvestment += annualInvestment;
         
         // Calculate market value
-        marketValue = currentShares * marketPrice;
+        marketValue = currentShares * currentMarketPrice;
         
         // Calculate unrealized gain
         const unrealizedGain = marketValue - totalInvestment;
@@ -118,11 +131,11 @@ function calculateInvestmentGrowth(
         const threshold3 = 24 * minWage; // 24 minimum wages
         
         if (dividendsInLei >= threshold1 && dividendsInLei < threshold2) {
-            healthInsuranceTax = threshold1 * 0.1;
+            healthInsuranceTax = threshold1 * healthInsuranceRate;
         } else if (dividendsInLei >= threshold2 && dividendsInLei < threshold3) {
-            healthInsuranceTax = threshold2 * 0.1;
+            healthInsuranceTax = threshold2 * healthInsuranceRate;
         } else if (dividendsInLei >= threshold3) {
-            healthInsuranceTax = threshold3 * 0.1;
+            healthInsuranceTax = threshold3 * healthInsuranceRate;
         }
         
         // Convert health insurance tax back to EUR
@@ -141,6 +154,7 @@ function calculateInvestmentGrowth(
             sharesThisYear: sharesThisYear,
             totalShares: currentShares,
             totalInvestment: totalInvestment,
+            marketPrice: currentMarketPrice,
             marketValue: marketValue,
             unrealizedGain: unrealizedGain,
             dividendsThisYear: dividendsThisYear,
@@ -287,6 +301,7 @@ function displayYearlyBreakdown(results) {
                 <th>Investment</th>
                 <th>Shares Added</th>
                 <th>Total Shares</th>
+                <th>Stock Price</th>
                 <th>Market Value</th>
                 <th>Dividends</th>
                 <th>Capital Gains Tax</th>
@@ -302,6 +317,7 @@ function displayYearlyBreakdown(results) {
                 <td>${formatCurrency(result.investmentThisYear)}</td>
                 <td>${result.sharesThisYear.toFixed(2)}</td>
                 <td>${result.totalShares.toFixed(2)}</td>
+                <td>${formatCurrency(result.marketPrice)}</td>
                 <td>${formatCurrency(result.marketValue)}</td>
                 <td>${formatCurrency(result.dividendsThisYear)}</td>
                 <td>${formatCurrency(result.capitalGainsTax)}</td>
