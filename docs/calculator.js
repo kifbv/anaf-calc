@@ -118,8 +118,8 @@ function calculateInvestmentGrowth(
         // Calculate unrealized gain
         const unrealizedGain = marketValue - totalInvestment;
         
-        // Calculate capital gains tax (on unrealized gains)
-        const capitalGainsTaxAmount = unrealizedGain > 0 ? unrealizedGain * capitalGainsTax : 0;
+        // Calculate capital gains tax on dividends only
+        const capitalGainsTaxAmount = dividendsThisYear * capitalGainsTax;
         
         // Calculate health insurance tax (based on dividend income in Lei)
         const dividendsInLei = dividendsThisYear * eurToLei;
@@ -141,10 +141,11 @@ function calculateInvestmentGrowth(
         // Convert health insurance tax back to EUR
         healthInsuranceTax = healthInsuranceTax / eurToLei;
         
-        // Calculate total tax
+        // Calculate total tax (only on dividends during investment period)
         const totalTax = capitalGainsTaxAmount + healthInsuranceTax;
         
-        // Calculate net gain
+        // Calculate net gain (unrealized gain - tax paid so far)
+        // Note: This doesn't include the tax on the final sale which is calculated in the summary
         const netGain = unrealizedGain - totalTax;
         
         // Add results for this year
@@ -243,10 +244,23 @@ function displaySummary(results) {
     const finalResult = results[results.length - 1];
     const summaryResults = document.getElementById('summaryResults');
     
-    const roi = ((finalResult.netGain / finalResult.totalInvestment) * 100).toFixed(2);
-    // Calculate annualized ROI (CAGR - Compound Annual Growth Rate)
-    const annualROI = finalResult.year > 0 ? 
-        (Math.pow((1 + finalResult.netGain / finalResult.totalInvestment), 1 / finalResult.year) - 1) * 100 : 
+    // Calculate tax on final sale (capital gains tax on the unrealized gain when selling)
+    const capitalGainsTaxRate = parseFloat(document.getElementById('capitalGainsTax').value) / 100;
+    const finalSaleGain = finalResult.marketValue - finalResult.totalInvestment;
+    const finalSaleTax = finalSaleGain > 0 ? finalSaleGain * capitalGainsTaxRate : 0;
+    
+    // Calculate total tax (accumulated tax + final sale tax)
+    const totalTaxWithSale = finalResult.totalTax + finalSaleTax;
+    
+    // Calculate net gain after all taxes
+    const netGainAfterSale = finalResult.netGain - finalSaleTax;
+    
+    // Calculate ROI after all taxes
+    const roiAfterSale = ((netGainAfterSale / finalResult.totalInvestment) * 100).toFixed(2);
+    
+    // Calculate annualized ROI (CAGR - Compound Annual Growth Rate) after all taxes
+    const annualROIAfterSale = finalResult.year > 0 ? 
+        (Math.pow((1 + netGainAfterSale / finalResult.totalInvestment), 1 / finalResult.year) - 1) * 100 : 
         0; // Avoid division by zero for year 0
     
     summaryResults.innerHTML = `
@@ -272,20 +286,28 @@ function displaySummary(results) {
                 <td>${formatCurrency(finalResult.totalDividends)}</td>
             </tr>
             <tr>
-                <td>Total Tax</td>
+                <td>Tax on Dividends</td>
                 <td>${formatCurrency(finalResult.totalTax)}</td>
             </tr>
             <tr>
-                <td>Net Gain</td>
-                <td>${formatCurrency(finalResult.netGain)}</td>
+                <td>Estimated Tax on Final Sale</td>
+                <td>${formatCurrency(finalSaleTax)}</td>
             </tr>
             <tr>
-                <td>Return on Investment (ROI)</td>
-                <td>${roi}%</td>
+                <td>Total Tax (Dividends + Final Sale)</td>
+                <td>${formatCurrency(totalTaxWithSale)}</td>
             </tr>
             <tr>
-                <td>Annual ROI</td>
-                <td>${annualROI.toFixed(2)}%</td>
+                <td>Net Gain After All Taxes</td>
+                <td>${formatCurrency(netGainAfterSale)}</td>
+            </tr>
+            <tr>
+                <td>Return on Investment (ROI) After All Taxes</td>
+                <td>${roiAfterSale}%</td>
+            </tr>
+            <tr>
+                <td>Annual ROI After All Taxes</td>
+                <td>${annualROIAfterSale.toFixed(2)}%</td>
             </tr>
         </table>
     `;
@@ -304,9 +326,9 @@ function displayYearlyBreakdown(results) {
                 <th>Stock Price</th>
                 <th>Market Value</th>
                 <th>Dividends</th>
-                <th>Capital Gains Tax</th>
+                <th>Dividend Tax</th>
                 <th>Health Insurance</th>
-                <th>Net Gain</th>
+                <th>Unrealized Gain</th>
             </tr>
     `;
     
