@@ -73,6 +73,8 @@ function calculateInvestmentGrowth(
     results.push({
         year: 0,
         investmentThisYear: annualInvestment,
+        sharesFromInvestment: currentShares,
+        sharesFromDividends: 0,
         sharesThisYear: currentShares,
         totalShares: currentShares,
         totalInvestment: totalInvestment,
@@ -152,6 +154,8 @@ function calculateInvestmentGrowth(
         results.push({
             year: year,
             investmentThisYear: annualInvestment,
+            sharesFromInvestment: sharesFromAnnualInvestment,
+            sharesFromDividends: sharesFromDividends,
             sharesThisYear: sharesThisYear,
             totalShares: currentShares,
             totalInvestment: totalInvestment,
@@ -321,7 +325,9 @@ function displayYearlyBreakdown(results) {
             <tr>
                 <th>Year</th>
                 <th>Investment</th>
-                <th>Shares Added</th>
+                <th>Shares from Investment</th>
+                <th>Shares from Dividends</th>
+                <th>Total Shares Added</th>
                 <th>Total Shares</th>
                 <th>Stock Price</th>
                 <th>Market Value</th>
@@ -337,6 +343,8 @@ function displayYearlyBreakdown(results) {
             <tr>
                 <td>${result.year}</td>
                 <td>${formatCurrency(result.investmentThisYear)}</td>
+                <td>${result.sharesFromInvestment ? result.sharesFromInvestment.toFixed(2) : '0.00'}</td>
+                <td>${result.sharesFromDividends ? result.sharesFromDividends.toFixed(2) : '0.00'}</td>
                 <td>${result.sharesThisYear.toFixed(2)}</td>
                 <td>${result.totalShares.toFixed(2)}</td>
                 <td>${formatCurrency(result.marketPrice)}</td>
