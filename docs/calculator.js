@@ -314,6 +314,14 @@ function displaySummary(results) {
                 <td>${annualROIAfterSale.toFixed(2)}%</td>
             </tr>
         </table>
+        <div class="term-explanations">
+            <p><strong>Total Investment:</strong> Total amount invested over time (annual investments × years).</p>
+            <p><strong>Final Market Value:</strong> Value of all shares at the end of the investment period based on market price.</p>
+            <p><strong>Tax on Dividends:</strong> Accumulated tax paid on dividends during the investment period.</p>
+            <p><strong>Estimated Tax on Final Sale:</strong> Tax that would be due when selling all shares at the end (10% of capital gains).</p>
+            <p><strong>Net Gain After All Taxes:</strong> Total profit after accounting for all taxes (dividends and final sale).</p>
+            <p><strong>Annual ROI:</strong> Annualized rate of return, showing the effective yearly growth rate of your investment.</p>
+        </div>
     `;
 }
 
@@ -324,17 +332,17 @@ function displayYearlyBreakdown(results) {
         <table>
             <tr>
                 <th>Year</th>
-                <th>Investment</th>
-                <th>Shares from Investment</th>
-                <th>Shares from Dividends</th>
-                <th>Total Shares Added</th>
-                <th>Total Shares</th>
-                <th>Stock Price</th>
-                <th>Market Value</th>
-                <th>Dividends</th>
-                <th>Dividend Tax</th>
-                <th>Health Insurance</th>
-                <th>Unrealized Gain</th>
+                <th>Invest. (€)</th>
+                <th>Shares<br>from Invest.</th>
+                <th>Shares<br>from Div.</th>
+                <th>Total<br>Shares Add.</th>
+                <th>Total<br>Shares</th>
+                <th>Stock<br>Price (€)</th>
+                <th>Market<br>Value (€)</th>
+                <th>Div. (€)</th>
+                <th>Div.<br>Tax (€)</th>
+                <th>Health<br>Ins. (€)</th>
+                <th>Unrealized<br>Gain (€)</th>
             </tr>
     `;
     
@@ -357,7 +365,14 @@ function displayYearlyBreakdown(results) {
         `;
     });
     
-    tableHTML += '</table>';
+    tableHTML += `</table>
+    <div class="term-explanations">
+        <p><strong>Shares from Invest.:</strong> Number of shares purchased with the annual investment.</p>
+        <p><strong>Shares from Div.:</strong> Additional shares purchased by reinvesting dividends that year.</p>
+        <p><strong>Div. Tax:</strong> Tax paid on dividends in that year (10% of dividend income).</p>
+        <p><strong>Health Ins.:</strong> Health insurance contribution (CASS) calculated based on Romanian threshold system.</p>
+        <p><strong>Unrealized Gain:</strong> Potential profit if shares were sold at that point, after accounting for taxes paid.</p>
+    </div>`;
     yearlyBreakdown.innerHTML = tableHTML;
 }
 
