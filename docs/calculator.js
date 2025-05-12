@@ -62,50 +62,28 @@ function calculateInvestmentGrowth(
 ) {
     const results = [];
     
-    // Initial investment
-    let currentShares = annualInvestment / initialPrice;
-    let totalInvestment = annualInvestment;
+    // Track running totals
+    let currentShares = 0;
+    let totalInvestment = 0;
     let currentMarketPrice = marketPrice; // Current market price that will change over time
-    let marketValue = currentShares * currentMarketPrice;
     let totalDividends = 0;
     
-    // Year 0 (initial investment)
-    results.push({
-        year: 0,
-        investmentThisYear: annualInvestment,
-        sharesFromInvestment: currentShares,
-        sharesFromDividends: 0,
-        sharesThisYear: currentShares,
-        totalShares: currentShares,
-        totalInvestment: totalInvestment,
-        marketPrice: currentMarketPrice,
-        marketValue: marketValue,
-        unrealizedGain: marketValue - totalInvestment,
-        dividendsThisYear: 0,
-        totalDividends: 0,
-        capitalGainsTax: 0,
-        healthInsuranceTax: 0,
-        totalTax: 0,
-        netGain: marketValue - totalInvestment
-    });
-    
-    // Calculate for each year
+    // Calculate for each year (starting from year 1)
     for (let year = 1; year <= duration; year++) {
-        // Update market price based on annual growth/decline
-        currentMarketPrice = currentMarketPrice * (1 + annualPriceChange);
+        // Determine the purchase price for this year
+        // For year 1, use initialPrice, for subsequent years use discounted current market price
+        const purchasePrice = (year === 1) ? initialPrice : currentMarketPrice * (1 - futureDiscount);
         
-        // Calculate discounted price for this year's investment
-        const discountedPrice = currentMarketPrice * (1 - futureDiscount);
+        // Shares bought with annual investment
+        const sharesFromAnnualInvestment = annualInvestment / purchasePrice;
         
-        // Dividend income from existing shares (paid before new purchases)
+        // Dividend income from existing shares (if any)
         const dividendsThisYear = currentShares * dividend;
         totalDividends += dividendsThisYear;
         
-        // Shares bought with annual investment
-        const sharesFromAnnualInvestment = annualInvestment / discountedPrice;
-        
         // Reinvest dividends (buy more shares)
-        const sharesFromDividends = dividendsThisYear / discountedPrice;
+        // For the first year, there are no prior dividends to reinvest
+        const sharesFromDividends = dividendsThisYear / purchasePrice;
         
         // Update total shares
         const sharesThisYear = sharesFromAnnualInvestment + sharesFromDividends;
@@ -115,7 +93,7 @@ function calculateInvestmentGrowth(
         totalInvestment += annualInvestment;
         
         // Calculate market value
-        marketValue = currentShares * currentMarketPrice;
+        const marketValue = currentShares * currentMarketPrice;
         
         // Calculate unrealized gain
         const unrealizedGain = marketValue - totalInvestment;
@@ -169,6 +147,9 @@ function calculateInvestmentGrowth(
             totalTax: totalTax,
             netGain: netGain
         });
+        
+        // Update market price based on annual growth/decline for the next year
+        currentMarketPrice = currentMarketPrice * (1 + annualPriceChange);
     }
     
     return results;
@@ -185,7 +166,8 @@ function updateChart(results) {
     const marketValueData = results.map(result => result.marketValue);
     const totalInvestmentData = results.map(result => result.totalInvestment);
     const netGainData = results.map(result => result.netGain);
-    const totalTaxData = results.map(result => result.totalTax);
+    const capitalGainsTaxData = results.map(result => result.capitalGainsTax);
+    const healthInsuranceTaxData = results.map(result => result.healthInsuranceTax);
     
     // Destroy previous chart if it exists
     if (investmentChart) {
@@ -220,10 +202,17 @@ function updateChart(results) {
                     borderWidth: 1
                 },
                 {
-                    label: 'Total Tax (€)',
-                    data: totalTaxData,
+                    label: 'Capital Gains Tax (€)',
+                    data: capitalGainsTaxData,
                     backgroundColor: 'rgba(255, 99, 132, 0.7)',
                     borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Health Insurance (CASS) (€)',
+                    data: healthInsuranceTaxData,
+                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
                     borderWidth: 1
                 }
             ]
