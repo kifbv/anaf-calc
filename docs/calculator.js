@@ -70,29 +70,37 @@ function calculateInvestmentGrowth(
     
     // Calculate for each year (starting from year 1)
     for (let year = 1; year <= duration; year++) {
-        // Determine the purchase price for this year
+        // First, make the investment at the beginning of the year
         // For year 1, use initialPrice, for subsequent years use discounted current market price
         const purchasePrice = (year === 1) ? initialPrice : currentMarketPrice * (1 - futureDiscount);
         
         // Shares bought with annual investment
         const sharesFromAnnualInvestment = annualInvestment / purchasePrice;
         
-        // Dividend income from existing shares (if any)
+        // Add new shares from investment
+        currentShares += sharesFromAnnualInvestment;
+        
+        // Add investment amount
+        totalInvestment += annualInvestment;
+        
+        // Update market price based on annual growth/decline (for end of year)
+        currentMarketPrice = currentMarketPrice * (1 + annualPriceChange);
+        
+        // Now calculate dividends at the end of the year based on shares owned
         const dividendsThisYear = currentShares * dividend;
         totalDividends += dividendsThisYear;
         
-        // Reinvest dividends (buy more shares)
-        // For the first year, there are no prior dividends to reinvest
-        const sharesFromDividends = dividendsThisYear / purchasePrice;
+        // Reinvest dividends at the end of year price with discount
+        const endOfYearDiscountedPrice = currentMarketPrice * (1 - futureDiscount);
+        const sharesFromDividends = dividendsThisYear / endOfYearDiscountedPrice;
         
-        // Update total shares
+        // Add shares from dividend reinvestment
+        currentShares += sharesFromDividends;
+        
+        // Calculate total shares added this year
         const sharesThisYear = sharesFromAnnualInvestment + sharesFromDividends;
-        currentShares += sharesThisYear;
         
-        // Update total investment
-        totalInvestment += annualInvestment;
-        
-        // Calculate market value
+        // Calculate market value at the end of the year (using updated market price)
         const marketValue = currentShares * currentMarketPrice;
         
         // Calculate unrealized gain
@@ -128,7 +136,7 @@ function calculateInvestmentGrowth(
         // Note: This doesn't include the tax on the final sale which is calculated in the summary
         const netGain = unrealizedGain - totalTax;
         
-        // Add results for this year
+        // Add results for this year - represents end-of-year state
         results.push({
             year: year,
             investmentThisYear: annualInvestment,
@@ -147,9 +155,6 @@ function calculateInvestmentGrowth(
             totalTax: totalTax,
             netGain: netGain
         });
-        
-        // Update market price based on annual growth/decline for the next year
-        currentMarketPrice = currentMarketPrice * (1 + annualPriceChange);
     }
     
     return results;
@@ -310,6 +315,7 @@ function displaySummary(results) {
             <p><strong>Estimated Tax on Final Sale:</strong> Tax that would be due when selling all shares at the end (10% of capital gains).</p>
             <p><strong>Net Gain After All Taxes:</strong> Total profit after accounting for all taxes (dividends and final sale).</p>
             <p><strong>Annual ROI:</strong> Annualized rate of return, showing the effective yearly growth rate of your investment.</p>
+            <p><em>Note: Each year shows values at the end of that year, after the annual investment, dividend distribution, and price changes have been applied.</em></p>
         </div>
     `;
 }
@@ -356,8 +362,9 @@ function displayYearlyBreakdown(results) {
     
     tableHTML += `</table>
     <div class="term-explanations">
-        <p><strong>Shares from Invest.:</strong> Number of shares purchased with the annual investment.</p>
-        <p><strong>Shares from Div.:</strong> Additional shares purchased by reinvesting dividends that year.</p>
+        <p><strong>Year X:</strong> Values at the end of year X, after the investment, dividend payout, and price change for that year.</p>
+        <p><strong>Shares from Invest.:</strong> Number of shares purchased with the annual investment made at the beginning of the year.</p>
+        <p><strong>Shares from Div.:</strong> Additional shares purchased by reinvesting dividends received at the end of that year.</p>
         <p><strong>Div. Tax:</strong> Tax paid on dividends in that year (10% of dividend income).</p>
         <p><strong>Health Ins.:</strong> Health insurance contribution (CASS) calculated based on Romanian threshold system.</p>
         <p><strong>Unrealized Gain:</strong> Potential profit if shares were sold at that point, after accounting for taxes paid.</p>
