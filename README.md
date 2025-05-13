@@ -14,7 +14,7 @@ A calculator for simulating employee stock purchase plans with Romanian tax impl
 
 ## 🚀 How to Use
 
-1. Visit the [Calculator](https://anaf-calc.francratier.design/) 🔗
+1. Visit the [Calculator](https://anaf-calc.franckratier.design/) 🔗
 2. Enter your investment parameters:
    - 💲 Initial discounted stock price
    - 📊 Current market price
