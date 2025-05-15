@@ -12,6 +12,7 @@ function calculateInvestment() {
     const marketPrice = parseFloat(document.getElementById('marketPrice').value);
     const annualPriceChange = parseFloat(document.getElementById('annualPriceChange').value) / 100;
     const futureDiscount = parseFloat(document.getElementById('futureDiscount').value) / 100;
+    const companyMatch = document.getElementById('companyMatch').checked;
     const annualInvestment = parseFloat(document.getElementById('annualInvestment').value);
     const dividend = parseFloat(document.getElementById('dividend').value);
     const duration = parseInt(document.getElementById('duration').value);
@@ -28,6 +29,7 @@ function calculateInvestment() {
         marketPrice,
         annualPriceChange,
         futureDiscount,
+        companyMatch,
         annualInvestment,
         dividend,
         duration,
@@ -52,6 +54,7 @@ function calculateInvestmentGrowth(
     marketPrice,
     annualPriceChange,
     futureDiscount,
+    companyMatch,
     annualInvestment,
     dividend,
     duration,
@@ -77,8 +80,14 @@ function calculateInvestmentGrowth(
         // Shares bought with annual investment
         const sharesFromAnnualInvestment = annualInvestment / purchasePrice;
         
-        // Add new shares from investment
-        currentShares += sharesFromAnnualInvestment;
+        // Company matching shares (1:1 for first 10 shares purchased each year)
+        let matchedShares = 0;
+        if (companyMatch) {
+            matchedShares = Math.min(10, Math.floor(sharesFromAnnualInvestment));
+        }
+        
+        // Add new shares from investment and company matching
+        currentShares += sharesFromAnnualInvestment + matchedShares;
         
         // Add investment amount
         totalInvestment += annualInvestment;
@@ -141,8 +150,9 @@ function calculateInvestmentGrowth(
             year: year,
             investmentThisYear: annualInvestment,
             sharesFromInvestment: sharesFromAnnualInvestment,
+            sharesFromCompanyMatch: matchedShares,
             sharesFromDividends: sharesFromDividends,
-            sharesThisYear: sharesThisYear,
+            sharesThisYear: sharesFromAnnualInvestment + matchedShares + sharesFromDividends,
             totalShares: currentShares,
             totalInvestment: totalInvestment,
             marketPrice: currentMarketPrice,
@@ -329,6 +339,7 @@ function displayYearlyBreakdown(results) {
                 <th>Year</th>
                 <th>Invest. (€)</th>
                 <th>Shares<br>from Invest.</th>
+                <th>Matched<br>Shares</th>
                 <th>Shares<br>from Div.</th>
                 <th>Total<br>Shares Add.</th>
                 <th>Total<br>Shares</th>
@@ -347,6 +358,7 @@ function displayYearlyBreakdown(results) {
                 <td>${result.year}</td>
                 <td>${formatCurrency(result.investmentThisYear)}</td>
                 <td>${result.sharesFromInvestment ? result.sharesFromInvestment.toFixed(2) : '0.00'}</td>
+                <td>${result.sharesFromCompanyMatch ? result.sharesFromCompanyMatch.toFixed(0) : '0'}</td>
                 <td>${result.sharesFromDividends ? result.sharesFromDividends.toFixed(2) : '0.00'}</td>
                 <td>${result.sharesThisYear.toFixed(2)}</td>
                 <td>${result.totalShares.toFixed(2)}</td>
@@ -364,6 +376,7 @@ function displayYearlyBreakdown(results) {
     <div class="term-explanations">
         <p><strong>Year X:</strong> Values at the end of year X, after the investment, dividend payout, and price change for that year.</p>
         <p><strong>Shares from Invest.:</strong> Number of shares purchased with the annual investment made at the beginning of the year.</p>
+        <p><strong>Matched Shares:</strong> Free shares provided by company matching (1:1 for first 10 shares purchased each year).</p>
         <p><strong>Shares from Div.:</strong> Additional shares purchased by reinvesting dividends received at the end of that year.</p>
         <p><strong>Div. Tax:</strong> Tax paid on dividends in that year (10% of dividend income).</p>
         <p><strong>Health Ins.:</strong> Health insurance contribution (CASS) calculated based on Romanian threshold system.</p>

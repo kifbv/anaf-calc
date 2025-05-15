@@ -73,9 +73,29 @@ h2 {
     position: relative;
 }
 
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-top: 0;
+    margin-right: 5px;
+}
+
+.checkbox-group .tooltip {
+    margin-left: 5px;
+}
+
 label {
     margin-bottom: 5px;
     font-weight: 500;
+}
+
+.checkbox-group label {
+    margin-bottom: 0;
 }
 
 input {
@@ -83,6 +103,12 @@ input {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+}
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
 
 .tooltip {
@@ -190,6 +216,12 @@ tr:nth-child(even) {
 .info-section h2 {
     color: #2c3e50;
     margin-bottom: 15px;
+}
+
+.info-section h3 {
+    color: #2c3e50;
+    margin: 20px 0 10px;
+    font-size: 1.3rem;
 }
 
 .info-section p {

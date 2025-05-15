@@ -37,6 +37,12 @@
                     <input type="number" id="futureDiscount" value="20" min="0" max="100">
                 </div>
                 
+                <div class="input-group checkbox-group">
+                    <label for="companyMatch">Company Share Matching:</label>
+                    <input type="checkbox" id="companyMatch" checked>
+                    <span class="tooltip">Company matches 1:1 for first 10 shares purchased each year</span>
+                </div>
+                
                 <div class="input-group">
                     <label for="annualInvestment">Annual Investment (€):</label>
                     <input type="number" id="annualInvestment" value="1000" step="100">
@@ -98,7 +104,10 @@
             </div>
             
             <div class="info-section">
-                <h2>About Romanian Taxation</h2>
+                <h2>About the Calculator</h2>
+                <p><strong>Company Share Matching:</strong> The company provides free matched shares on a 1:1 basis for the first 10 shares purchased each year. For example, if you buy 8 shares, you get 8 free shares. If you buy 15 shares, you get 10 free shares (the maximum).</p>
+                
+                <h3>Romanian Taxation</h3>
                 <p><strong>Capital Gains Tax:</strong> In Romania, a 10% tax applies to capital gains and dividends. This calculator applies this tax to dividend income during the investment period and estimates the tax on capital gains when selling shares at the end.</p>
                 
                 <p><strong>Health Insurance Contributions (CASS):</strong> In Romania, health insurance contributions are calculated based on thresholds:</p>
